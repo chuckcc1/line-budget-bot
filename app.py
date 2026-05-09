@@ -77,9 +77,15 @@ def process_message(text: str) -> str:
             "食": "🍜", "衣": "👗", "住": "🏠",
             "行": "🚌", "育": "📚", "樂": "🎉", "其他": "📦"
         }.get(result.get("category", "其他"), "📦")
+        pay_emoji = {
+            "信用卡": "💳", "現金": "💵", "悠遊卡": "🎫",
+            "LINE Pay": "📱", "Apple Pay": "📱", "街口支付": "📱", "轉帳": "🏦"
+        }.get(result.get("payment", "現金"), "💵")
+        payment = result.get("payment") or "現金"
         return (
             f"✅ 已記錄支出\n"
             f"{cat_emoji} 分類：{result.get('category', '其他')}\n"
+            f"{pay_emoji} 付款：{payment}\n"
             f"💸 {result['description']}：${result['amount']:,.0f}"
         )
 

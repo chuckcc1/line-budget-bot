@@ -12,7 +12,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive",
 ]
 
-HEADERS_DETAIL = ["日期", "類型", "描述", "分類", "金額", "年月"]
+HEADERS_DETAIL = ["日期", "類型", "描述", "分類", "金額", "付款方式", "年月"]
 HEADERS_MONTHLY = ["年月", "總收入", "總支出", "結餘", "食", "衣", "住", "行", "育", "樂", "其他"]
 
 
@@ -58,6 +58,7 @@ class SheetsHandler:
             record.get("description", ""),
             record.get("category", "") if record["type"] == "expense" else "收入",
             record["amount"],
+            record.get("payment", "") if record["type"] == "expense" else "",
             now.strftime("%Y-%m"),
         ]
         self._sheet("明細").append_row(row, value_input_option="USER_ENTERED")
