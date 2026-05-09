@@ -6,6 +6,12 @@ CAT_EMOJI = {
     "行": "🚌", "育": "📚", "樂": "🎉", "其他": "📦",
 }
 
+INCOME_CAT_EMOJI = {
+    "薪資": "💼", "獎金": "🎯", "投資": "📈",
+    "兼職": "🛠", "租金": "🏠", "贈與": "🎁",
+    "退款": "↩️", "其他收入": "💰",
+}
+
 # Alert when a single category exceeds this fraction of total income
 ALERT_RATIO = 0.30
 # Alert when total expense-to-income ratio exceeds this
@@ -37,6 +43,7 @@ class ReportGenerator:
         total_income = 0.0
         total_expense = 0.0
         categories: dict[str, float] = defaultdict(float)
+        income_categories: dict[str, float] = defaultdict(float)
 
         for r in records:
             try:
@@ -45,6 +52,10 @@ class ReportGenerator:
                 continue
             if r.get("類型") == "收入":
                 total_income += amount
+                cat = r.get("分類", "其他收入") or "其他收入"
+                if cat == "收入":
+                    cat = "其他收入"
+                income_categories[cat] += amount
             else:
                 total_expense += amount
                 cat = r.get("分類", "其他") or "其他"
@@ -61,8 +72,15 @@ class ReportGenerator:
             f"{balance_icon} 結　餘：${balance:>10,.0f}",
         ]
 
+        if income_categories:
+            lines += ["", "💰 收入來源明細："]
+            for cat, amount in sorted(income_categories.items(), key=lambda x: x[1], reverse=True):
+                emoji = INCOME_CAT_EMOJI.get(cat, "💰")
+                pct = amount / total_income * 100 if total_income else 0
+                lines.append(f"  {emoji} {cat}：${amount:,.0f}（{pct:.1f}%）")
+
         if categories:
-            lines += ["", "📂 支出分類明細："]
+            lines += ["", "💸 支出分類明細："]
             for cat, amount in sorted(categories.items(), key=lambda x: x[1], reverse=True):
                 emoji = CAT_EMOJI.get(cat, "📦")
                 pct = amount / total_expense * 100 if total_expense else 0

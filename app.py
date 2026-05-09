@@ -68,8 +68,15 @@ def process_message(text: str) -> str:
         return f"⚠️ 記錄失敗，請稍後再試\n錯誤：{e}"
 
     if result["type"] == "income":
+        income_emoji = {
+            "薪資": "💼", "獎金": "🎯", "投資": "📈",
+            "兼職": "🛠", "租金": "🏠", "贈與": "🎁",
+            "退款": "↩️", "其他收入": "💰",
+        }.get(result.get("category", "其他收入"), "💰")
+        cat = result.get("category") or "其他收入"
         return (
             f"✅ 已記錄收入\n"
+            f"{income_emoji} 分類：{cat}\n"
             f"💰 {result['description']}：${result['amount']:,.0f}"
         )
     else:
