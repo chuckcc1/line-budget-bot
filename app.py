@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -67,6 +68,8 @@ def process_message(text: str) -> str:
     except Exception as e:
         return f"⚠️ 記錄失敗，請稍後再試\n錯誤：{e}"
 
+    today = datetime.now().strftime("%m/%d")
+
     if result["type"] == "income":
         income_emoji = {
             "薪資": "💼", "獎金": "🎯", "投資": "📈",
@@ -75,14 +78,15 @@ def process_message(text: str) -> str:
         }.get(result.get("category", "其他收入"), "💰")
         cat = result.get("category") or "其他收入"
         return (
-            f"✅ 已記錄收入\n"
+            f"✅ 已記錄收入｜{today}\n"
             f"{income_emoji} 分類：{cat}\n"
             f"💰 {result['description']}：${result['amount']:,.0f}"
         )
     else:
         cat_emoji = {
             "食": "🍜", "衣": "👗", "住": "🏠",
-            "行": "🚌", "育": "📚", "樂": "🎉", "其他": "📦"
+            "行": "🚌", "育": "📚", "樂": "🎉",
+            "帳單": "🧾", "其他": "📦"
         }.get(result.get("category", "其他"), "📦")
         pay_emoji = {
             "信用卡": "💳", "現金": "💵", "悠遊卡": "🎫",
@@ -90,7 +94,7 @@ def process_message(text: str) -> str:
         }.get(result.get("payment", "現金"), "💵")
         payment = result.get("payment") or "現金"
         return (
-            f"✅ 已記錄支出\n"
+            f"✅ 已記錄支出｜{today}\n"
             f"{cat_emoji} 分類：{result.get('category', '其他')}\n"
             f"{pay_emoji} 付款：{payment}\n"
             f"💸 {result['description']}：${result['amount']:,.0f}"
